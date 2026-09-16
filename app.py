@@ -62,18 +62,15 @@ def lire_facteur(tokens, pos):
         valeur, pos = lire_facteur(tokens, pos + 1)
         return -valeur, pos
     if pos < len(tokens) and tokens[pos] == "+":
-        valeur, pos = lire_facteur(tokens, pos)
         return lire_facteur(tokens, pos + 1)
     return lire_puissance(tokens, pos)
 
 def lire_puissance(tokens, pos):
     """Niveau 4: Gère les ** (associatif à droite )"""
     base, pos = lire_primaire(tokens, pos)
-
     if pos < len(tokens) and tokens[pos] == "**":
-        exposant, pos = lire_facteur(tokens, pos + 1)
+        exposant, pos = lire_puissance(tokens, pos + 1)
         return base ** exposant, pos 
-
     return base, pos 
 
 def lire_primaire(tokens, pos):
@@ -106,7 +103,7 @@ def evaluer_expression(expression):
     resultat, position = lire_expression(tokens, 0)
 
     if position != len(tokens):
-        raise ValueError("Token inattendu : '{tokens[position]}'")
+        raise ValueError(f"Token inattendu : '{tokens[position]}'")
 
     return resultat
 
@@ -171,16 +168,16 @@ while True:
         print(" Choix invalide, veuillez entrez des nombres valides")
         continue
 
-        if choix == "1":
-            resultat = Addition(nbr1,nbr2)
-        elif choix ==  "2":
-            resultat = Soustraction(nbr1,nbr2)
-        elif choix ==  "3":
-            resultat = Multiplication(nbr1,nbr2)
-        elif choix ==  "4":
-            resultat = Division(nbr1, nbr2)
-            if resultat is None:
-                print("Division impossible !!")
-                continue
+    if choix == "1":
+        resultat = Addition(nbr1,nbr2)
+    elif choix ==  "2":
+        resultat = Soustraction(nbr1,nbr2)
+    elif choix ==  "3":
+        resultat = Multiplication(nbr1,nbr2)
+    elif choix ==  "4":
+        resultat = Division(nbr1, nbr2)
+        if resultat is None:
+            print("Division impossible !!")
+            continue
 
     print(f"resultat : {resultat}")
