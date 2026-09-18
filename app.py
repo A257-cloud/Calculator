@@ -1,4 +1,25 @@
 import re
+# -----------------------------------
+# AJOUT DE L'HISTORIQUE DANS LE CODE 
+# -----------------------------------
+
+historique = []
+
+def ajouter_historique(expression, resultat):
+    """ajoouter une entrée à l'historique. """
+    historique.append({"expression" : expression, "resultat": resultat})
+
+def afficher_historique():
+    """Affiche tout l'historique."""
+    print("\n" + "="*40)
+    print("\n HISTORIQUE")
+    print("="*40)
+    if not historique:
+        print("(vide)")
+    else:
+        for i, entree in enumerate(historique, start=1):
+            print(f"{i}. {entree['expression']} = {entree['resultat']}")
+    print("="*40)
 
 #1- Découper l'expression en morceaux
 
@@ -125,13 +146,14 @@ def Division (nbr1, nbr2):
 
 def menu():
     print("\n" + "="*50)
-    print("\t CALCULATRICE AMELIORER :) ")
+    print("\t CALCULATRICE  AVEC HISTORIQUE :) ")
     print("="*50)
     print("1. Addition")
     print("2. Soustraction")
     print("3. Multiplication")
     print("4. Division")
     print("5. operation")
+    print("/history. voir l'historique")
     print("0. Quittez")
     print("="*50)
 
@@ -139,6 +161,10 @@ def menu():
 while True:
     menu()
     choix = input("votre choix : ").strip()
+
+    if choix == "/history":
+        afficher_historique()
+        continue
 
     if choix == "0":
         print("\n Merci d'avoir utiliser la calculatrice. Au revoir !")
@@ -168,6 +194,8 @@ while True:
         print(" Choix invalide, veuillez entrez des nombres valides")
         continue
 
+    operateur = ""
+
     if choix == "1":
         resultat = Addition(nbr1,nbr2)
     elif choix ==  "2":
@@ -181,3 +209,5 @@ while True:
             continue
 
     print(f"resultat : {resultat}")
+
+    ajouter_historique(f"{nbr1} {operateur} {nbr2}", resultat)
