@@ -1,13 +1,42 @@
 import re
+import json 
+from datetime import datetime 
 # -----------------------------------
 # AJOUT DE L'HISTORIQUE DANS LE CODE 
 # -----------------------------------
 
 historique = []
 
+FICHIER_HISTORIQUE = "historique.json"
+
+def charger_historique():
+    """Lit le fichier JSON et remplit la liste 'historique' """
+    global historique
+    try:
+        with open(FICHIER_HISTORIQUE, "r", encoding="utf-8") as f:
+            historique = json.load(f)
+    except FileNotFoundError:
+        historique = []
+    except (json.JSONDecodeError, ValueError):
+        hstorique = []
+    except Exception as e: 
+        print(f" Impossible de charger l'historique : {e}")
+        historique  = []
+
+def sauvegarder_historique():
+    """Ecrit la liste 'Historique' dans le fichier JSON"""
+    try:
+        with open(FICHIER_HISTORIQUE, "w", encoding="utf-8") as f:
+            json.dump(historique, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"Impossible de sauvegarder l'historique : {e}")
+
 def ajouter_historique(expression, resultat):
     """ajoouter une entrée à l'historique. """
-    historique.append({"expression" : expression, "resultat": resultat})
+    historique.append({"expression" : expression, 
+                       "resultat": resultat,
+                       "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),})
+    sauvegarder_historique()
 
 def afficher_historique():
     """Affiche tout l'historique."""
@@ -18,7 +47,10 @@ def afficher_historique():
         print("(vide)")
     else:
         for i, entree in enumerate(historique, start=1):
-            print(f"{i}. {entree['expression']} = {entree['resultat']}")
+            expr = entree.get("expression", "?")
+            res = entree.get("resultat", "?")
+            date = entree.get("date", "?")
+            print(f"{i}. [{date}] {expr} = {res}")
     print("="*40)
 
 #1- Découper l'expression en morceaux
@@ -157,6 +189,8 @@ def menu():
     print("0. Quittez")
     print("="*50)
 
+    charger_historique()
+
 
 while True:
     menu()
@@ -180,6 +214,7 @@ while True:
         try: 
             resultat = evaluer_expression(expr)
             print(f"\n Resultat : {expr} = {resultat}")
+            ajouter_historique(expr, resultat)
         except ZeroDivisionError as e: 
             print(f"\n Erreur : {e}")
         except ValueError as e:
@@ -198,12 +233,16 @@ while True:
 
     if choix == "1":
         resultat = Addition(nbr1,nbr2)
-    elif choix ==  "2":
+        operateur = "+"
+    elif choix ==  "2":   
         resultat = Soustraction(nbr1,nbr2)
+        operateur =  "-"
     elif choix ==  "3":
         resultat = Multiplication(nbr1,nbr2)
+        operateur = "*"
     elif choix ==  "4":
         resultat = Division(nbr1, nbr2)
+        operateur = "/"
         if resultat is None:
             print("Division impossible !!")
             continue
