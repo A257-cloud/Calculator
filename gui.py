@@ -1,7 +1,28 @@
+import math
 import tkinter as tk 
 from main import Calculator,HistoryManager
 
-calc = Calculator()
+#Ajout de la classe scientifique
+class ScientificCalculator(Calculator):
+    """Etend Calculator avec les fonctions scientifique"""
+    def racine(self, x):
+        if x <0:
+            raise ValueError("Racine d'un négatif impossible")
+        return math.sqrt(x)
+
+    def pourcentage(self, x):
+        return x / 100
+
+    def inverse(self, x ):
+        if x == 0:
+            raise ZeroDivisionError("inverse de zéro impossible")
+        return 1 / x
+
+    def exposant(self, x, y):
+        if x == 0 and y < 0:
+            raise ZeroDivisionError(" calcul impossible")
+
+calc = ScientificCalculator()
 histo = HistoryManager()
 
 fenetre = None
@@ -62,7 +83,36 @@ def ouvrir_historique():
         text="Fermer",
         command=fenetre_histo.destroy, 
     ).pack(pady=5)
+#application des fonctions 
+def appliquer_fonction(fonction, nom):
+    """
+    Applique une fonction scientifique (racine, %, inverse) à la valeur affichée.
+    Remplace l'écran par le résultat.
+    """
+    expression = affichage.get().strip()
+    if not expression:
+        return
 
+    try:
+        # 1. Évalue d'abord l'expression affichée (au cas où elle contient un calcul)
+        valeur = calc.evaluer_expression(expression)
+        # 2. Applique la fonction
+        resultat = fonction(valeur)
+        # 3. Affiche le résultat
+        affichage.delete(0, tk.END)
+        affichage.insert(0, str(resultat))
+        affichage.config(fg="black")
+        # 4. Enregistre dans l'historique
+        histo.ajouter(f"{nom}({expression})", resultat)
+    except ZeroDivisionError as e:
+        afficher_erreur(f"Erreur : {e}")
+    except ValueError as e:
+        afficher_erreur(f"Erreur : {e}")
+    except Exception as e:
+        afficher_erreur(f"Erreur : {e}")
+
+def inserer_exposant():
+    affichage.insert(tk.END, "**")  
 #====LOGIQUE DES BOUTONS =======
 def action_clic(texte):
     """gere le clic sur les boutons"""
@@ -77,6 +127,14 @@ def action_clic(texte):
         affichage.insert(0, contenu[:-1])
     elif texte == "=":
         evaluer()
+    elif texte == "√":
+        appliquer_fonction(calc.racine, "√")
+    elif texte == "%":
+        appliquer_fonction(calc.pourcentage, "%")
+    elif texte == "1/x":
+        appliquer_fonction(calc.inverse, "1/x")
+    elif texte == "^":
+        inserer_exposant()
     else:
         affichage.insert(tk.END, texte)
         affichage.config(fg="black")
@@ -107,6 +165,7 @@ affichage.grid(row=0, column=0, columnspan=4, sticky="nsew", padx=5, pady=5)
 
 # ---zone des boutons
 BOUTONS = [
+    ["√", "%", "1/x", "^"],
     ["C", "(", ")", "/"],
     ["7", "8", "9", "*"],
     ["4", "5", "6", "-"],
@@ -123,7 +182,7 @@ for ligne, rangee in enumerate(BOUTONS):
 for i in range(4):
     fenetre.columnconfigure(i, weight=1)
 
-for i in range(1, 6):
+for i in range(1, 7):
     fenetre.rowconfigure(i, weight=1)
 
 fenetre.rowconfigure(0, weight=0)
